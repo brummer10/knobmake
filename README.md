@@ -1,5 +1,8 @@
 # knobmake
-create knobs with cairo
+create horizontal knob frames with cairo
+
+example
+![knobmake](https://raw.githubusercontent.com/brummer10/knobmake/master/example.png)
 
 build with:
 
