@@ -3,6 +3,7 @@ create horizontal knob frames with cairo
 
 example
 ![knobmake](https://raw.githubusercontent.com/brummer10/knobmake/master/example.png)
+![knobmake](https://raw.githubusercontent.com/brummer10/knobmake/master/example_switch.png)
 
 build with:
 
