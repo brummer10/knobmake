@@ -102,7 +102,7 @@ static void gear(cairo_t *cr, double radius, int teeth, double tooth_depth) {
 
 static void calcVertexes(double start_x, double start_y,
 						double end_x, double end_y, 
-						double arrow_degrees_, double arrow_lenght_,
+						double arrow_degrees_, double arrow_lenght_, double diamant_,
 						double *x1, double *y1, double *x2, double *y2,
 						double *x3, double *y3) {
 
@@ -112,8 +112,8 @@ static void calcVertexes(double start_x, double start_y,
 	*(y1) = end_y + arrow_lenght_ * sin(angle - arrow_degrees_);
 	*(x2) = end_x + arrow_lenght_ * cos(angle + arrow_degrees_);
 	*(y2) = end_y + arrow_lenght_ * sin(angle + arrow_degrees_);
-	*(x3) = end_x + arrow_lenght_ * 0.1 * cos(angle);
-	*(y3) = end_y + arrow_lenght_ * 0.1 * sin(angle);
+	*(x3) = end_x + arrow_lenght_ * diamant_ * cos(angle);
+	*(y3) = end_y + arrow_lenght_ * diamant_ * sin(angle);
 }
 
 static void paint_knob_state(cairo_t *cr, int knob_size, int knob_offset, double knobstate)
@@ -195,24 +195,29 @@ static void paint_knob_state(cairo_t *cr, int knob_size, int knob_offset, double
 	double y3 = 0;
 	double degrees_ = 0.35;
 	double lenght_ = 10.0;
+	double diamant_ = 0.1;
 	
 	/** create a arrow for given lengh and degrees **/
 
 	calcVertexes(knobx1+arc_offset/2, knoby1+arc_offset/2, radius_x, radius_y,
-				 degrees_, lenght_, &x1, &y1, &x2, &y2, &x3, &y3);
+				 degrees_, lenght_, diamant_, &x1, &y1, &x2, &y2, &x3, &y3);
 	
 	cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
 	cairo_set_line_join(cr, CAIRO_LINE_JOIN_BEVEL);
 	cairo_move_to(cr, length_x, length_y);
 	cairo_curve_to (cr,length_x, length_y,x1,y1,x3,y3);
 	cairo_curve_to (cr,x3,y3,x2,y2,length_x, length_y);
+	//cairo_line_to(cr,x1,y1);
+	//cairo_line_to(cr,x3,y3);
+	//cairo_line_to(cr,x2,y2);
+	//cairo_line_to(cr,length_x, length_y);
 	cairo_set_source_rgb (cr, 1.0, 1.0, 1.0);
 	cairo_fill_preserve (cr);
 	cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
 	cairo_set_line_width(cr,1);
 	cairo_stroke(cr);
 
-	// draw a ring indicator around the knob
+	/** draw a ring indicator around the knob **/
 	draw_indicator_ring(cr, knobstate, radius, angle, knobx1+arc_offset/2,knoby1+arc_offset/2);
 
 	/**  use this for a simple pointer **/

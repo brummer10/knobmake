@@ -17,6 +17,11 @@
 #endif
 
 // define controller position in window
+typedef enum {
+	KNOB,
+	SWITCH,
+} type;
+
 typedef struct {
 	int x;
 	int y;
@@ -37,6 +42,7 @@ typedef struct {
 typedef struct {
 	adjustment adj;
 	alinment al;
+	type tp;
 } controller;
 
 // resize window
@@ -124,6 +130,7 @@ static void scroll_event(controller *knob, int direction) {
 
 // mouse move while left button is pressed
 static void motion_event(controller *knob, double start_value, int pos_y, int m_y) {
+	if (knob->tp == SWITCH) return;
 	static const double scaling = 0.5;
 	// transfer any range to a range from 0 to 1 and get position in this range
 	double knobstate = (start_value - knob->adj.min_value) /
@@ -134,6 +141,13 @@ static void motion_event(controller *knob, double start_value, int pos_y, int m_
 	double nvalue = min(1.0,max(0.0,knobstate - ((double)(pos_y - m_y)*scaling *nsteps)));
 	// set new value to the knob in the knob range
 	knob->adj.value = nvalue * (knob->adj.max_value-knob->adj.min_value) + knob->adj.min_value;
+}
+
+// left mouse button is pressed, generate a switch event, or set controller active
+static void button1_event(controller *knob) {
+	if (knob->tp != SWITCH) return;
+	float value = (int)knob->adj.value ? 0.0 : 1.0;
+	knob->adj.value = value;
 }
 
 static void resize_event(viewport *v) {
@@ -172,6 +186,8 @@ int main(int argc, char* argv[])
 	fprintf(stderr, "width %i height %i steps %i\n", v.w,v.h,v.s);
 
 	v.knob = (controller) {{0.5,0.5,0.0,1.0, 0.01},{0,0,v.w,v.h}};
+	v.knob.tp = (v.s<2) ? SWITCH : KNOB;
+	v.knob.adj.step = (v.knob.tp == SWITCH) ? 1.0 : 0.01;
 
 	v.win = XCreateWindow(v.display, DefaultRootWindow(v.display), 0, 0, v.h,v.h, 0,
 						CopyFromParent, InputOutput, CopyFromParent, CopyFromParent, 0);
@@ -213,6 +229,11 @@ int main(int argc, char* argv[])
 				v.start_value = v.knob.adj.value;
 
 				switch(v.event.xbutton.button) {
+					case  Button1:
+						// left button pressed
+						button1_event(&v.knob);
+						send_expose(v.display,v.win);
+					break;
 					case  Button4:
 						// mouse wheel scroll up
 						scroll_event(&v.knob, 1);
