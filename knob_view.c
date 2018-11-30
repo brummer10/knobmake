@@ -16,12 +16,13 @@
 #define max(x, y) ((x) < (y) ? (y) : (x))
 #endif
 
-// define controller position in window
+// define controller type
 typedef enum {
 	KNOB,
 	SWITCH,
 } type;
 
+// define controller position in window
 typedef struct {
 	int x;
 	int y;
@@ -250,7 +251,7 @@ int main(int argc, char* argv[])
 			break;
 			case MotionNotify:
 				// mouse move while button1 is pressed
-				if(v.event.xmotion.state == Button1MotionMask) {
+				if(v.event.xmotion.state & Button1Mask) {
 					motion_event(&v.knob, v.start_value, v.event.xmotion.y, v.pos_y);
 					send_expose(v.display,v.win);
 				}
